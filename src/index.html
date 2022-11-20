@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Xmas Calendar</title>
+        <script src="./script.js"></script>
+        <link rel="stylesheet" href="./style.css">
+    </head>
+<body>
+    <div class='support-grid'></div>
+    <section class='grid-1' id="grid">
+        <div class='title'>
+            <img src='.api/calendar/family/title'>
+        </div>
+
+    <!-- Template day 2
+    <div class='day-2'>
+    <label>
+      <input type='checkbox' id='check-2'>
+      <div class='door' id='2' onclick='clickHandler(this.id)'>
+        <div class='front' id="front-2">2</div>
+        <div class='back' id="back-2"></div>
+      </div>
+      </input>
+    </label>
+  </div>
+  -->
+    </section>
+    <footer><a
+            href='http://webdesign.tutsplus.com/tutorials/how-to-build-a-festive-advent-calendar-with-css-grid--cms-30070'>
+            Envato Tuts+ 2017 ☃️
+        </a>
+    </footer>
+
+    <script>
+        //Add doors to grid
+        let grid = document.getElementById("grid");
+
+        for (dayNumber = 1; dayNumber <= 24; dayNumber++) {
+            let day = document.createElement("div");
+            day.className = "day-" + dayNumber;
+            let label = document.createElement("label");
+            day.appendChild(label);
+            let checkbox = document.createElement("input");
+            checkbox.id = "check-" + dayNumber;
+            checkbox.type = "checkbox";
+            let door = document.createElement("div");
+            door.className = "door";
+            door.id = dayNumber;
+            door.onclick = function () {
+                clickHandler(door.id);
+            }; //clickHandler(door.id);
+            label.appendChild(checkbox);
+            label.appendChild(door);
+            let front = document.createElement("div");
+            front.id = "front-" + dayNumber;
+            front.className = "front";
+            let textnode = document.createTextNode(dayNumber);
+            front.appendChild(textnode);
+            let back = document.createElement("div");
+            back.id = "back-" + dayNumber;
+            back.className = "back";
+            door.appendChild(front);
+            door.appendChild(back);
+
+            grid.appendChild(day);
+        }
+
+        console.log("loaded");
+
+    </script>
+</body>
+
+</html>
