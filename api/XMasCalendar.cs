@@ -15,7 +15,7 @@ namespace de.softwaremess.xmas.api
 {
     public static class XMasCalendar
     {
-        private static string connection = "";//Environment.GetEnvironmentVariable("XmasCalendarStorage");
+        private static string connection = Environment.GetEnvironmentVariable("XmasCalendarStorage");
 
         [FunctionName("GetItem")]
         public static async Task<IActionResult> GetCalendarItem(
