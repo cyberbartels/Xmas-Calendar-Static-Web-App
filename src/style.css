@@ -1,5 +1,5 @@
 body {
-  background: url(.api/calendar/family/background) no-repeat top center #0d44e8;
+  background: url(./api/calendar/family/background) no-repeat top center #0d44e8;
   background-size: cover;
 }
 

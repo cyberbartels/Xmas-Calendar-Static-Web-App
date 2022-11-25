@@ -9,7 +9,7 @@ function clickHandler(id) {
     if (!checkbox.checked) {
       let elementBack = document.getElementById("back-" + id);
       
-      elementBack.style.backgroundImage = "url('.api/calendar/family/item/" + id + "')";
+      elementBack.style.backgroundImage = "url('./api/calendar/family/item/" + id + "')";
     }
     rotate(id);
     // rotate("front-"+id);
