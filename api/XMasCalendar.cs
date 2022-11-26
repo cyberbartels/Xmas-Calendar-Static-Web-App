@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -9,13 +12,22 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 
 namespace de.softwaremess.xmas.api
 {
     public static class XMasCalendar
     {
         private static string connection = Environment.GetEnvironmentVariable("XmasCalendarStorage");
+        private static string readerUserRole = Environment.GetEnvironmentVariable("CalendarReaderRole");
+
+        private class ClientPrincipal
+        {
+            public string IdentityProvider { get; set; }
+            public string UserId { get; set; }
+            public string UserDetails { get; set; }
+            public IEnumerable<string> UserRoles { get; set; }
+        }
 
         [FunctionName("GetItem")]
         public static async Task<IActionResult> GetCalendarItem(
@@ -24,7 +36,13 @@ namespace de.softwaremess.xmas.api
             string calendar, int day, ILogger log)
         {
             log.LogInformation($"C# HTTP trigger GET item processed a request for day {day}.");
-            IActionResult checkResult = CheckDay(day);
+             IActionResult checkResult = CheckRoles(req, readerUserRole);
+            if (checkResult != null)
+            {
+                return checkResult;
+            }
+
+            checkResult = CheckDay(day);
             if (checkResult != null)
             {
                 return checkResult;
@@ -50,11 +68,11 @@ namespace de.softwaremess.xmas.api
             return new FileStreamResult(resultStream, contentType);
         }
 
-         [FunctionName("GetTitle")]
+        [FunctionName("GetTitle")]
         public static async Task<IActionResult> GetCalendarTitle(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "calendar/{calendar}/title")] HttpRequest req,
-            //[Blob("{calendar}/{day}", FileAccess.Read)] Stream item,
-            string calendar, ILogger log)
+           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "calendar/{calendar}/title")] HttpRequest req,
+           //[Blob("{calendar}/{day}", FileAccess.Read)] Stream item,
+           string calendar, ILogger log)
         {
             log.LogInformation($"C# HTTP trigger GET title processed a request .");
 
@@ -78,11 +96,11 @@ namespace de.softwaremess.xmas.api
             return new FileStreamResult(resultStream, contentType);
         }
 
-         [FunctionName("GetBackground")]
+        [FunctionName("GetBackground")]
         public static async Task<IActionResult> GetCalendarBackground(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "calendar/{calendar}/background")] HttpRequest req,
-            //[Blob("{calendar}/{day}", FileAccess.Read)] Stream item,
-            string calendar, ILogger log)
+           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "calendar/{calendar}/background")] HttpRequest req,
+           //[Blob("{calendar}/{day}", FileAccess.Read)] Stream item,
+           string calendar, ILogger log)
         {
             log.LogInformation($"C# HTTP trigger GET background processed a request .");
 
@@ -215,6 +233,32 @@ namespace de.softwaremess.xmas.api
             return await SetBlobContent(req, calendar, "background", true, log);
         }
 
+        private static IActionResult CheckRoles(HttpRequest req, string role)
+        {
+            var principal = new ClientPrincipal();
+
+            if (req.Headers.TryGetValue("x-ms-client-principal", out var header))
+            {
+            var data = header[0];
+            var decoded = Convert.FromBase64String(data);
+            var json = Encoding.UTF8.GetString(decoded);
+            principal = JsonSerializer.Deserialize<ClientPrincipal>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            else
+            {
+                return new ObjectResult("") { StatusCode = StatusCodes.Status401Unauthorized };
+            }
+
+            if(principal.UserRoles.Contains(role))
+            {
+                return null;
+            }
+            else
+            {
+                return new ObjectResult("") { StatusCode = StatusCodes.Status403Forbidden};
+            }
+        }
+
         private static IActionResult CheckDay(int day)
         {
             if (day > 24 || day < 1)
@@ -268,8 +312,8 @@ namespace de.softwaremess.xmas.api
                 {
                     return new OkObjectResult(ex.Message);
                 }
-                
-                if(isUpdate)
+
+                if (isUpdate)
                 {
                     return new OkObjectResult($"Updated");
                 }
