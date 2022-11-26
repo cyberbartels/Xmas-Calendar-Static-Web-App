@@ -1,18 +1,27 @@
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Xmas Calendar</title>
-        <script src="./script.js"></script>
-        <link rel="stylesheet" href="./style.css">
-    </head>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Xmas Calendar</title>
+    <script src="./script.js"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
 <body>
+    <section>
+        <div class="logon">
+            <a href="./login?post_login_redirect_uri=.referrer">Login</a>
+            <span id="me"></span>
+            <a href="/logout">Log out</a>
+        </div>
+    </section>
     <div class='support-grid'></div>
     <section class='grid-1' id="grid">
         <div class='title'>
             <img src='./api/calendar/family/title'>
         </div>
 
-    <!-- Template day 2
+        <!-- Template day 2
     <div class='day-2'>
     <label>
       <input type='checkbox' id='check-2'>
@@ -25,7 +34,7 @@
   </div>
   -->
     </section>
-    <footer><a
+    <footer><a Design based on
             href='http://webdesign.tutsplus.com/tutorials/how-to-build-a-festive-advent-calendar-with-css-grid--cms-30070'>
             Envato Tuts+ 2017 ☃️
         </a>
@@ -65,8 +74,20 @@
             grid.appendChild(day);
         }
 
-        console.log("loaded");
+        getUserInfo().then(
+            function (userinfo) {
+                console.log(userinfo);
+                let infospan = document.getElementById("me");
+                if (userinfo != null) {
+                    infospan.innerText = userinfo;
+                } else {
+                    infospan.innerText = "Please login";
+                }
+            },
+            function (error) { console.log(error); }
+        );
 
+        console.log("loaded");
     </script>
 </body>
 

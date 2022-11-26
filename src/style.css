@@ -3,7 +3,6 @@ body {
   background-size: cover;
 }
 
-/* title graphic */
 .title {
   display: flex;
   align-items: center;
@@ -13,6 +12,21 @@ body {
 .title img {
   width: 90%;
   height: auto;
+}
+
+.logon {
+  color: white;
+  display: grid;
+  width: 96%;
+  align-items: left;
+  border: 2px solid;
+  max-width: 900px;
+  margin: 2% auto;
+}
+
+#me {
+  color: white;
+  text-shadow: 4px 4px 5px red;
 }
 
 /* mobile first grid layout */
